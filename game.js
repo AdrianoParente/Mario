@@ -16,9 +16,9 @@ let isJumping = true
 
 loadSprite('mario', 'assets/img/mario-stand.gif');
 loadSprite('floor', 'assets/img/floor.gif');
-loadSprite('mushroom', 'assets/img/ice-cup.png');
+loadSprite('ice-cup', 'assets/img/ice-cup.png');
 loadSprite('tubeTop', 'assets/img/tubeTop.gif');
-loadSprite('coin', 'assets/img/book.png');
+loadSprite('book', 'assets/img/book.png');
 loadSprite('questionmark', 'assets/img/questionmark.gif');
 loadSprite('unboxed', 'assets/img/unboxed.gif');
 loadSprite('evil-shroom', 'assets/img/evil-shroom.gif')
@@ -72,18 +72,18 @@ scene("game", () => {
     width: 16,
     height: 16,
     '=': [sprite('floor'), solid()],
-    '$': [sprite('coin'), scale(0.04), 'coin'],
-    '%': [sprite('questionmark'), solid(), 'coin-questionmark'],
-    '*': [sprite('questionmark'), solid(), 'mushroom-questionmark'],
+    '$': [sprite('book'), scale(0.04), 'book'],
+    '%': [sprite('questionmark'), solid(), 'book-questionmark'],
+    '*': [sprite('questionmark'), solid(), 'ice-cup-questionmark'],
     '}': [sprite('unboxed'), solid()],
     '+': [sprite('tubeTop'), solid(), 'pipe'],
     '^': [sprite('evil-shroom'), solid(), 'dangerous'],
-    '#': [sprite('mushroom'), solid(), scale(0.05), 'mushroom', body()],
+    '#': [sprite('ice-cup'), solid(), scale(0.05), 'ice-cup', body()],
     '?': [sprite('hat'), scale(0.05), 'hat']
   }
 
   const gameLevel = addLevel(map, levelCfg);
-  
+
   function big() {
     let timer = 0
     let isBig = false
@@ -120,7 +120,7 @@ scene("game", () => {
     body(),
     big(),
     origin('bot')
-  ]) 
+  ])
 
   const backgroundShop = add([
     sprite('shop'), scale(0.2),
@@ -134,30 +134,30 @@ scene("game", () => {
     layer('bg')
   ])
 
-  action('mushroom', (m) => {
+  action('ice-cup', (m) => {
     m.move(20, 0)
   })
 
   player.on("headbump", (obj) => {
-    if (obj.is('coin-questionmark')) {
+    if (obj.is('book-questionmark')) {
       gameLevel.spawn('$', obj.gridPos.sub(0, 2))
       destroy(obj)
       gameLevel.spawn('}', obj.gridPos.sub(0, 0))
     }
-    if (obj.is('mushroom-questionmark')) {
+    if (obj.is('ice-cup-questionmark')) {
       gameLevel.spawn('#', obj.gridPos.sub(0, 1))
       destroy(obj)
       gameLevel.spawn('}', obj.gridPos.sub(0, 0))
     }
   })
 
-  player.collides('mushroom', (m) => {
+  player.collides('ice-cup', (m) => {
     destroy(m)
     player.biggify(6)
   })
 
-  player.collides('coin', (c) => {
-    destroy(c);    
+  player.collides('book', (c) => {
+    destroy(c);
   })
 
   action('dangerous', (d) => {
@@ -167,8 +167,6 @@ scene("game", () => {
   player.collides('dangerous', (d) => {
     if (isJumping) {
       destroy(d)
-    } else {
-      go('lose')
     }
   })
 
@@ -184,14 +182,6 @@ scene("game", () => {
     if (player.pos.y >= FALL_DEATH) {
       go('lose')
     }
-  })
-
-
-
-  player.collides('pipe', () => {
-    keyPress('down', () => {
-      go('game')
-    })
   })
 
   keyDown('left', () => {
@@ -216,6 +206,8 @@ scene("game", () => {
   })
 })
 
+
+// second level
 scene("second-step", () => {
   layers(['bg', 'obj', 'ui'], 'obj')
 
@@ -249,13 +241,7 @@ scene("second-step", () => {
     width: 16,
     height: 16,
     '=': [sprite('floor'), solid()],
-    '$': [sprite('coin'), scale(0.04), 'coin'],
     '%': [sprite('questionmark'), solid(), 'coin-questionmark'],
-    '*': [sprite('questionmark'), solid(), 'mushroom-questionmark'],
-    '}': [sprite('unboxed'), solid()],
-    '+': [sprite('tubeTop'), solid(), 'pipe'],
-    '^': [sprite('evil-shroom'), solid(), 'dangerous'],
-    '#': [sprite('mushroom'), solid(), scale(0.05), 'mushroom', body()],
     '<': [sprite('diplom'), scale(0.1), 'diplom'],
     '>': [sprite('html-tag'), scale(0.03), 'html-tag'],
     'h': [sprite('html'), scale(0.28), solid(), 'html'],
@@ -266,50 +252,15 @@ scene("second-step", () => {
     'g': [sprite('git'), scale(0.28), solid(), 'git'],
   }
 
-  const gameLevel = addLevel(map, levelCfg)
-
-
-
-  
-
-  function big() {
-    let timer = 0
-    let isBig = false
-    return {
-      update() {
-        if (isBig) {
-          CURRENT_JUMP_FORCE = BIG_JUMP_FORCE
-          timer -= dt()
-          if (timer <= 0) {
-            this.smallify()
-          }
-        }
-      },
-      isBig() {
-        return isBig
-      },
-      smallify() {
-        this.scale = vec2(1)
-        CURRENT_JUMP_FORCE = JUMP_FORCE
-        timer = 0
-        isBig = false
-      },
-      biggify(time) {
-        this.scale = vec2(2)
-        timer = time
-        isBig = true
-      }
-    }
-  }
+  const gameLevel = addLevel(map, levelCfg);
 
   const player = add([
     sprite('mario'), solid(),
     pos(30, 0),
     body(),
-    big(),
     origin('bot')
   ])
-  
+
   const backgroundShop = add([
     sprite('sign'), scale(0.2),
     pos(150, 195),
@@ -322,61 +273,18 @@ scene("second-step", () => {
     layer('bg')
   ])
 
-  action('mushroom', (m) => {
-    m.move(20, 0)
-  })
-
-  player.on("headbump", (obj) => {
-    if (obj.is('coin-questionmark')) {
-      gameLevel.spawn('$', obj.gridPos.sub(0, 2))
-      destroy(obj)
-      gameLevel.spawn('}', obj.gridPos.sub(0, 0))
-    }
-    if (obj.is('mushroom-questionmark')) {
-      gameLevel.spawn('#', obj.gridPos.sub(0, 1))
-      destroy(obj)
-      gameLevel.spawn('}', obj.gridPos.sub(0, 0))
-    }
-  })
-
-  player.collides('mushroom', (m) => {
-    destroy(m)
-    player.biggify(6)
-  })
-
   player.collides('html-tag', (c) => {
-    destroy(c); 
+    destroy(c);
   })
 
-  action('dangerous', (d) => {
-    d.move(-ENEMY_SPEED, 0)
-  })
 
-  player.collides('dangerous', (d) => {
-    if (isJumping) {
-      destroy(d)
-    } else {
-      go('lose')
-    }
-  })
   player.collides('diplom', (h) => {
     destroy(h);
     go('third-step')
   })
 
-
-
   player.action(() => {
     camPos(player.pos.x + width() / 2 - 100, 170);
-    if (player.pos.y >= FALL_DEATH) {
-      go('lose')
-    }
-  })
-
-  player.collides('pipe', () => {
-    keyPress('down', () => {
-      go('game')
-    })
   })
 
   keyDown('left', () => {
@@ -401,88 +309,51 @@ scene("second-step", () => {
   })
 })
 
+
+//third level
 scene("third-step", () => {
   layers(['bg', 'obj', 'ui'], 'obj')
 
   const map =
-   [
+    [
 
-    '                                                                                                      ',
-    '                                                                                                      ',
-    '                                                                                                      ',
-    '                                                                                                      ',
-    '                                                                                                      ',
-    '                                                                                                      ',
-    '                                                                                                      ',
-    '                                                                                                      ',
-    '                                                                                                      ',
-    '=                                                                                                    =',
-    '=                                                                                                    =',
-    '=                                                                                                    =',
-    '=                                                                                                    =',
-    '=                                                                                                    =',
-    '=                                                                                                    =',
-    '=                                                                                                    =',
-    '=                                                                                           d        =',
-    '=                                                                                                    =',
-    '=                                                                                                    =',
-    '=                                                                                                    =',
-    '======================================================================================================',
-  ]
+      '                                                                                                      ',
+      '                                                                                                      ',
+      '                                                                                                      ',
+      '                                                                                                      ',
+      '                                                                                                      ',
+      '                                                                                                      ',
+      '                                                                                                      ',
+      '                                                                                                      ',
+      '                                                                                                      ',
+      '=                                                                                                    =',
+      '=                                                                                                    =',
+      '=                                                                                                    =',
+      '=                                                                                                    =',
+      '=                                                                                                    =',
+      '=                                                                                                    =',
+      '=                                                                                                    =',
+      '=                                                                                           d        =',
+      '=                                                                                                    =',
+      '=                                                                                                    =',
+      '=                                                                                                    =',
+      '======================================================================================================',
+    ]
 
 
   const levelCfg = {
     width: 16,
     height: 16,
     '=': [sprite('floor'), solid()],
-    '$': [sprite('coin'), scale(0.04), 'coin'],
-    '%': [sprite('questionmark'), solid(), 'coin-questionmark'],
-    '*': [sprite('questionmark'), solid(), 'mushroom-questionmark'],
-    '}': [sprite('unboxed'), solid()],
-    '+': [sprite('tubeTop'), solid(), 'pipe'],
-    '^': [sprite('evil-shroom'), solid(), 'dangerous'],
-    '#': [sprite('mushroom'), solid(), scale(0.05), 'mushroom', body()],
-    '?': [sprite('hat'), scale(0.05), 'hat'],
     'd': [sprite('desktop'), scale(0.1), 'desktop'],
   }
 
   const gameLevel = addLevel(map, levelCfg);
 
-  function big() {
-    let timer = 0
-    let isBig = false
-    return {
-      update() {
-        if (isBig) {
-          CURRENT_JUMP_FORCE = BIG_JUMP_FORCE
-          timer -= dt()
-          if (timer <= 0) {
-            this.smallify()
-          }
-        }
-      },
-      isBig() {
-        return isBig
-      },
-      smallify() {
-        this.scale = vec2(1)
-        CURRENT_JUMP_FORCE = JUMP_FORCE
-        timer = 0
-        isBig = false
-      },
-      biggify(time) {
-        this.scale = vec2(2)
-        timer = time
-        isBig = true
-      }
-    }
-  }
-
   const player = add([
     sprite('mario'), solid(),
     pos(30, 0),
     body(),
-    big(),
     origin('bot')
   ])
 
@@ -498,54 +369,14 @@ scene("third-step", () => {
     layer('bg')
   ])
 
-  action('mushroom', (m) => {
-    m.move(20, 0)
-  })
 
-  player.on("headbump", (obj) => {
-    if (obj.is('coin-questionmark')) {
-      gameLevel.spawn('$', obj.gridPos.sub(0, 2))
-      destroy(obj)
-      gameLevel.spawn('}', obj.gridPos.sub(0, 0))
-    }
-    if (obj.is('mushroom-questionmark')) {
-      gameLevel.spawn('#', obj.gridPos.sub(0, 1))
-      destroy(obj)
-      gameLevel.spawn('}', obj.gridPos.sub(0, 0))
-    }
-  })
-
-  player.collides('mushroom', (m) => {
-    destroy(m)
-    player.biggify(6)
-  })
-
-  player.collides('coin', (c) => {
-    destroy(c)   
-  })
-
-  action('dangerous', (d) => {
-    d.move(-ENEMY_SPEED, 0)
-  })
-
-  player.collides('dangerous', (d) => {
-    if (isJumping) {
-      destroy(d)
-    } else {
-      go('lose')
-    }
-  })
   player.collides('desktop', (h) => {
     destroy(h);
-    go('finish')
-
+    go('finish');
   })
 
   player.action(() => {
     camPos(player.pos.x + width() / 2 - 100, 170);
-    if (player.pos.y >= FALL_DEATH) {
-      go('lose')
-    }
   })
 
   keyDown('left', () => {
@@ -568,11 +399,6 @@ scene("third-step", () => {
       player.jump(CURRENT_JUMP_FORCE)
     }
   })
-})
-
-
-scene('lose', () => {
-  add([text('lost', 32), origin('center'), pos(width() / 2, height() / 2)])
 })
 
 scene('finish', () => {
